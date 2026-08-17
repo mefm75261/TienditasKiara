@@ -2622,8 +2622,9 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
   showToast("Guardando en la nube...");
 
   var copia = JSON.parse(JSON.stringify(construirCopiaCompleta()));
-  // reconstruimos config limpio, sin las imagenes (pesadas e innecesarias para la busqueda)
   copia.config = { tienda: (state.config && state.config.tienda) || "Tienditas Kiara" };
+
+  console.log("COPIA A GUARDAR:", copia);
 
   db.collection(ruta.collection).doc(ruta.doc).set(copia)
     .then(function(){ showToast("Guardado en la nube ✓ ya puede buscarse online"); })
