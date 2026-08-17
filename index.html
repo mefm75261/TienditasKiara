@@ -2622,12 +2622,8 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
   showToast("Guardando en la nube...");
 
   var copia = JSON.parse(JSON.stringify(construirCopiaCompleta()));
-  // las imagenes (logo/mascotas) no hacen falta para la busqueda y son muy pesadas para Firestore
-  if(copia.config){
-    delete copia.config.logoDataUri;
-    delete copia.config.mascota1DataUri;
-    delete copia.config.mascota2DataUri;
-  }
+  // reconstruimos config limpio, sin las imagenes (pesadas e innecesarias para la busqueda)
+  copia.config = { tienda: (state.config && state.config.tienda) || "Tienditas Kiara" };
 
   db.collection(ruta.collection).doc(ruta.doc).set(copia)
     .then(function(){ showToast("Guardado en la nube ✓ ya puede buscarse online"); })
