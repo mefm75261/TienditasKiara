@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boletas</title>
+<title>Tienditas Kiara</title>
 <link rel="icon" type="image/png" href="img/Logo tienditas kiara.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -75,6 +75,15 @@
     border:1px solid var(--line); border-bottom:1px solid var(--card);
     box-shadow: 0 -2px 0 var(--brick) inset;
   }
+
+  nav.tabs a.modo-buscar{
+  font-family:'Public Sans', sans-serif; font-weight:700; font-size:0.98rem;
+  color:#146C82; background:#DFF3F8; border:none; cursor:pointer;
+  padding:11px 16px; border-radius:10px 10px 0 0; white-space:nowrap;
+  position:relative; top:1px; text-decoration:none; margin-left:auto;
+  display:flex; align-items:center; gap:6px;
+}
+nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
 
   h2.section-title{font-family:'Fraunces', serif; font-weight:700; font-size:1.4rem; margin:0 0 14px;}
   .muted{color:var(--ink-soft);}
@@ -321,6 +330,11 @@
   .btn-shine-primary:hover{ filter:brightness(1.06); }
   .btn-shine-ghost{ background:#FFFFFF; color:var(--ink); border:2px solid var(--line); box-shadow:0 6px 16px -8px rgba(91,42,77,0.25); }
   .btn-shine-ghost:hover{ border-color:var(--mustard); }
+  .btn-shine-buscar{
+  background:linear-gradient(135deg, #4AA9C2 0%, #2E7E96 100%); color:#FFFDFE;
+  box-shadow:0 10px 24px -8px rgba(46,126,150,0.5); text-align:center;
+  }
+  .btn-shine-buscar:hover{ filter:brightness(1.06); }
 
   .toast{
     position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
@@ -430,7 +444,8 @@
     <p class="landing-sub">¿Qué quieres hacer?</p>
     <div class="landing-actions">
       <button class="btn-shine btn-shine-primary" id="btnLandingLive">✨ Comenzar nuevo live</button>
-      <button class="btn-shine btn-shine-ghost" id="btnLandingImport">📥 Importar Excel</button>
+      <button class="btn-shine btn-shine-ghost" id="btnLandingImport">Importar Excel</button>
+      <a class="btn-shine btn-shine-buscar" id="btnLandingBuscar" href="buscar.html" target="_blank" rel="noopener">🔍 Modo buscar</a>
     </div>
     <button class="landing-skip" id="btnLandingSkip">Ir directo a la tienda →</button>
   </div>
@@ -444,6 +459,7 @@
       <img class="mascota-header" id="headerMascota" src="img/cinnamoroll1.png" alt="" onerror="this.style.display='none'">
     </div>
     <div class="io-actions">
+      <button class="btn btn-ghost btn-sm" id="btnCopiarLinkBuscar" title="Copia el link de la pagina donde tus clientas pueden buscar sus boletas">Copiar link de busqueda</button>
       <button class="btn btn-ghost btn-sm" id="btnImagenes" title="Guardar el logo y las mascotas para poder copiar boletas sin problemas">Imagenes</button>
       <button class="btn btn-ghost btn-sm" id="btnGuardarCopia" title="Descarga un archivo con TODO lo que llevas anotado, para compartirlo o abrirlo en otro computador">Guardar copia</button>
       <button class="btn btn-ghost btn-sm" id="btnCargarCopiaTrigger" title="Carga un archivo de copia guardado antes">Cargar copia</button>
@@ -804,16 +820,24 @@
   ];
 
   function renderTabs(){
-    var nav = document.getElementById("tabs");
-    nav.innerHTML = "";
-    TABS.forEach(function(t){
-      var b = document.createElement("button");
-      b.textContent = t.label;
-      b.className = t.id === tab ? "active" : "";
-      b.onclick = function(){ tab = t.id; closeAllAuto(); render(); };
-      nav.appendChild(b);
-    });
-  }
+  var nav = document.getElementById("tabs");
+  nav.innerHTML = "";
+  TABS.forEach(function(t){
+    var b = document.createElement("button");
+    b.textContent = t.label;
+    b.className = t.id === tab ? "active" : "";
+    b.onclick = function(){ tab = t.id; closeAllAuto(); render(); };
+    nav.appendChild(b);
+  });
+  var modoBuscar = document.createElement("a");
+  modoBuscar.className = "modo-buscar";
+  modoBuscar.href = "buscar.html";
+  modoBuscar.target = "_blank";
+  modoBuscar.rel = "noopener";
+  modoBuscar.title = "Abre la pagina publica donde tus clientas pueden buscar sus boletas";
+  modoBuscar.textContent = "🔍 Modo buscar";
+  nav.appendChild(modoBuscar);
+}
 
   function render(){
     var scrollPrevio = window.scrollY;
@@ -841,6 +865,29 @@
       }
     }
     window.scrollTo(0, scrollPrevio);
+  }
+
+  document.getElementById("btnCopiarLinkBuscar").addEventListener("click", function(){ copiarLinkBusqueda(); });
+
+  function armarLinkBusqueda(){
+    var url = new URL("buscar.html", window.location.href);
+    return url.href;
+  }
+
+  function copiarLinkBusqueda(){
+      var link = armarLinkBusqueda();
+      if(link.indexOf("file://") === 0){
+      showToast("Este link solo va a funcionar cuando subas la pagina a internet (GitHub Pages)");
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(link).then(function(){
+        showToast("Link copiado: " + link);
+      }).catch(function(){
+        window.prompt("Copia este link:", link);
+      });
+    } else {
+      window.prompt("Copia este link:", link);
+    }
   }
 
   /* ---------- autocomplete generico ---------- */
