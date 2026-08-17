@@ -2620,7 +2620,8 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
     if(!db){ showToast("Falta configurar firebase-config.js con los datos de tu proyecto"); return; }
     var ruta = window.FIREBASE_DOC_PATH || { collection: "tienditas_kiara", doc: "datos" };
     showToast("Guardando en la nube...");
-    db.collection(ruta.collection).doc(ruta.doc).set(construirCopiaCompleta())
+    var datosLimpios = JSON.parse(JSON.stringify(construirCopiaCompleta()));
+    db.collection(ruta.collection).doc(ruta.doc).set(datosLimpios)
       .then(function(){ showToast("Guardado en la nube ✓ ya puede buscarse online"); })
       .catch(function(err){ showToast("No se pudo guardar en la nube: " + (err && err.message ? err.message : "revisa la conexion")); });
   }
