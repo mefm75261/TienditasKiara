@@ -510,6 +510,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
   var liveFiltroProdFocused = false;
   var productosFiltroTexto = "";
   var liveVistaTabla = false;
+  var liveSoloFaltantes = false;
   var ready = false;
 
   function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
@@ -1152,7 +1153,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
         var total = subtotal - descuentoVal + delivery;
         state.ventas.unshift({
           id: uid(), fecha: fecha.toISOString(), clienteId: cliente.id, clienteNombre: cliente.nombre,
-          zonaNombre: zona ? zona.nombre : "-", zonaPrecio: delivery, items: items,
+          zonaNombre: zonaActual ? zonaActual.nombre : "-", zonaPrecio: delivery, items: items,
           subtotal: subtotal, descuento: descuentoVal, total: total
         });
         if(state.liveDescuentos[g.clienteId] != null) delete state.liveDescuentos[g.clienteId];
@@ -1165,6 +1166,10 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
     var btnVistaTabla = el('<button class="btn btn-ghost">'+(liveVistaTabla ? "Ver tarjetas" : "Ver como tabla")+'</button>');
     btnVistaTabla.onclick = function(){ liveVistaTabla = !liveVistaTabla; render(); };
     btnGroup.appendChild(btnVistaTabla);
+    var btnSoloFaltantes = el('<button class="btn btn-ghost">'+(liveSoloFaltantes ? "Ver todo" : "Solo faltantes")+'</button>');
+		btnSoloFaltantes.onclick = function(){ liveSoloFaltantes = !liveSoloFaltantes; render(); };
+		btnGroup.appendChild(btnSoloFaltantes);
+
     var btnCopiarTodas = el('<button class="btn btn-ghost">Copiar todas</button>');
     btnCopiarTodas.onclick = function(){ copiarTodasLasBoletas(); };
     btnGroup.appendChild(btnVerOrden);
@@ -1193,9 +1198,18 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
         });
       }
 
+      if(liveSoloFaltantes){
+  		gruposLive = gruposLive.map(function(g){
+    		return { clienteId: g.clienteId, clienteNombre: g.clienteNombre, rows: g.rows.filter(function(r){ return !r.embolsado; }) };
+  		}).filter(function(g){ return g.rows.length > 0; });
+		}
+
       if(gruposLive.length === 0){
         var textoFiltros = [liveFiltroTexto.trim(), liveFiltroProdTexto.trim()].filter(Boolean).join(" / ");
-        cardList.appendChild(el('<div class="empty-state"><div class="big">Sin resultados</div>No hay coincidencias con "'+escapeHtml(textoFiltros)+'".</div>'));
+        cardList.appendChild(el(liveSoloFaltantes && !textoFiltros
+  ? '<div class="empty-state"><div class="big">¡Todo embolsado!</div>No queda nada pendiente por empacar.</div>'
+  : '<div class="empty-state"><div class="big">Sin resultados</div>No hay coincidencias con "'+escapeHtml(textoFiltros)+'".</div>'
+		));
       } else if(liveVistaTabla){
 
       var tblTodo = document.createElement("table");
@@ -1549,6 +1563,10 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
       var cliente = findCliente(cid);
       if(!cliente){ showToast("No se encontro la clienta"); overlay.remove(); return; }
       var zona = findZona(cliente.zonaId);
+      var zonaActual = zona;
+		var zonaOptsBoleta = state.zonas.map(function(z){
+  return '<option value="'+z.id+'" data-precio="'+z.precio+'"'+(zonaActual && zonaActual.id===z.id ? ' selected' : '')+'>'+escapeHtml(z.nombre)+'</option>';
+		}).join("");
       var items = itemsRows.map(function(r){ return { nombre:r.producto, cantidad:r.cantidad, precio:r.precio }; });
       var subtotal = items.reduce(function(a,it){ return a + it.precio*it.cantidad; }, 0);
       var descuentoVal = calcularDescuento(subtotal, descInfoActual);
@@ -1586,7 +1604,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
             '<hr>' +
             '<div class="totals-row"><span>Subtotal</span><span class="num" id="boletaSubtotalVal">'+money(subtotal)+'</span></div>' +
             (descuentoVal>0 ? '<div class="totals-row descuento"><span>'+descuentoLabel+'</span><span class="num">-'+money(descuentoVal)+'</span></div>' : '') +
-            '<div class="totals-row"><span>Delivery ('+(zona?escapeHtml(zona.nombre):"-")+')</span><span class="num">'+money(delivery)+'</span></div>' +
+            '<div class="totals-row"><span>Delivery: <select id="boletaZonaSelect" style="font-family:\'Public Sans\',sans-serif; font-size:0.78rem; border:1px solid var(--line); border-radius:6px; padding:2px 4px; background:#FFFCFE; color:var(--ink); max-width:150px;">'+zonaOptsBoleta+'</select></span><span class="num" id="boletaDeliveryVal">'+money(delivery)+'</span></div>' +
             '<div class="totals-row total"><span>Total</span><span class="num" id="boletaTotalVal">'+money(total)+'</span></div>' +
             '<div class="thanks">Gracias por tu compra ✿</div>' +
             '<img class="boleta-mascota" src="'+getMascota2Src()+'" alt="" onerror="this.style.display=\'none\'">' +
@@ -1602,7 +1620,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
 
       // recalcula totales si se edita cantidad/precio en la boleta (solo afecta esta vista)
       var tbody = overlay.querySelector("#boletaCard tbody");
-      function recalcularBoleta(){
+            function recalcularBoleta(){
         var nuevoSubtotal = 0;
         tbody.querySelectorAll("tr").forEach(function(tr){
           var cant = parseFloat(tr.querySelector(".ed-cant").textContent.replace(/[^0-9.]/g,"")) || 0;
@@ -1612,7 +1630,10 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
           nuevoSubtotal += totalItem;
         });
         var nuevoDescuento = calcularDescuento(nuevoSubtotal, descInfoActual);
-        var nuevoTotal = nuevoSubtotal - nuevoDescuento + delivery;
+		var nuevoTotal = nuevoSubtotal - nuevoDescuento + delivery;
+		subtotal = nuevoSubtotal;
+		descuentoVal = nuevoDescuento;
+		total = nuevoTotal;
         var subEl = overlay.querySelector("#boletaSubtotalVal");
         var totEl = overlay.querySelector("#boletaTotalVal");
         if(subEl) subEl.textContent = money(nuevoSubtotal);
@@ -1621,6 +1642,17 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
       tbody.querySelectorAll("[contenteditable]").forEach(function(cell){
         cell.addEventListener("blur", recalcularBoleta);
       });
+      var zonaSelectEl = overlay.querySelector("#boletaZonaSelect");
+		if(zonaSelectEl){
+  		zonaSelectEl.addEventListener("change", function(){
+    var opt = zonaSelectEl.selectedOptions[0];
+    zonaActual = findZona(opt.value) || null;
+    delivery = Number(opt.getAttribute("data-precio")) || 0;
+    var deliveryValEl = overlay.querySelector("#boletaDeliveryVal");
+    		if(deliveryValEl) deliveryValEl.textContent = money(delivery);
+    recalcularBoleta();
+  		});
+		}
 
       overlay.querySelector("#btnCerrar").onclick = function(){ overlay.remove(); };
       overlay.querySelector("#btnImprimir").onclick = function(){ window.print(); };
@@ -1681,45 +1713,62 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
   }
 
   function copiarBoletaComoImagen(){
-    var el = document.getElementById("boletaCard");
-    if(!el || typeof html2canvas === "undefined"){ showToast("No se pudo generar la imagen"); return; }
-    showToast("Generando imagen...");
-    intentarCapturarBoleta(el, true);
-  }
+  	var el = document.getElementById("boletaCard");
+  	if(!el || typeof html2canvas === "undefined"){ showToast("No se pudo generar la imagen"); return; }
+  	showToast("Generando imagen...");
+  	// antes de capturar, cambia el selector de zona por texto plano (se ve mejor al compartir)
+  	var zonaSelect = el.querySelector("#boletaZonaSelect");
+  	var zonaTexto = null;
+  	if(zonaSelect){
+    	zonaTexto = document.createElement("span");
+    	zonaTexto.textContent = zonaSelect.selectedOptions[0] ? zonaSelect.selectedOptions[0].textContent : "";
+    	zonaSelect.style.display = "none";
+    	zonaSelect.insertAdjacentElement("beforebegin", zonaTexto);
+  	}
+  	function restaurarZonaSelect(){
+    if(zonaSelect){ zonaSelect.style.display = ""; }
+    if(zonaTexto && zonaTexto.parentNode){ zonaTexto.parentNode.removeChild(zonaTexto); }
+  	}
+  	intentarCapturarBoleta(el, true, restaurarZonaSelect);
+	}
 
-  function intentarCapturarBoleta(el, primerIntento){
-    html2canvas(el, { backgroundColor: "#FFFDFE", scale: 2, useCORS: true }).then(function(canvas){
-      canvas.toBlob(function(blob){
-        if(!blob){
-          if(primerIntento){ reintentarCapturaSinImagenes(el); return; }
-          showToast("No se pudo generar la imagen");
-          return;
-        }
-        copiarBlobBoleta(blob, false);
-      });
-    }).catch(function(){
-      if(primerIntento){ reintentarCapturaSinImagenes(el); }
-      else { showToast("No se pudo generar la imagen"); }
+  function intentarCapturarBoleta(el, primerIntento, onDone){
+  html2canvas(el, { backgroundColor: "#FFFDFE", scale: 2, useCORS: true }).then(function(canvas){
+    canvas.toBlob(function(blob){
+      if(!blob){
+        if(primerIntento){ reintentarCapturaSinImagenes(el, onDone); return; }
+        if(onDone) onDone();
+        showToast("No se pudo generar la imagen");
+        return;
+      }
+      if(onDone) onDone();
+      copiarBlobBoleta(blob, false);
     });
-  }
+  }).catch(function(){
+    if(primerIntento){ reintentarCapturaSinImagenes(el, onDone); }
+    else { if(onDone) onDone(); showToast("No se pudo generar la imagen"); }
+  });
+}
 
   // algunos navegadores bloquean el canvas si hay imagenes locales (logo, mascota)
   // cuando el archivo se abre directo con file://; en ese caso reintenta ocultandolas
-  function reintentarCapturaSinImagenes(el){
-    var imgs = el.querySelectorAll("img");
-    var previos = [];
-    imgs.forEach(function(img){ previos.push(img.style.display); img.style.display = "none"; });
-    html2canvas(el, { backgroundColor: "#FFFDFE", scale: 2 }).then(function(canvas){
-      imgs.forEach(function(img, i){ img.style.display = previos[i]; });
-      canvas.toBlob(function(blob){
-        if(!blob){ showToast("No se pudo generar la imagen"); return; }
-        copiarBlobBoleta(blob, true);
-      });
-    }).catch(function(){
-      imgs.forEach(function(img, i){ img.style.display = previos[i]; });
-      showToast("No se pudo generar la imagen");
+  function reintentarCapturaSinImagenes(el, onDone){
+  var imgs = el.querySelectorAll("img");
+  var previos = [];
+  imgs.forEach(function(img){ previos.push(img.style.display); img.style.display = "none"; });
+  html2canvas(el, { backgroundColor: "#FFFDFE", scale: 2 }).then(function(canvas){
+    imgs.forEach(function(img, i){ img.style.display = previos[i]; });
+    canvas.toBlob(function(blob){
+      if(onDone) onDone();
+      if(!blob){ showToast("No se pudo generar la imagen"); return; }
+      copiarBlobBoleta(blob, true);
     });
-  }
+  }).catch(function(){
+    imgs.forEach(function(img, i){ img.style.display = previos[i]; });
+    if(onDone) onDone();
+    showToast("No se pudo generar la imagen");
+  });
+}
 
   function copiarTodasLasBoletas(){
     var grupos = agruparLivePorCliente();
@@ -2407,6 +2456,14 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
 
     var compInput = addRow.querySelector("#compInput");
     var compTipo = addRow.querySelector("#compTipo");
+    attachAutocomplete(compInput, function(q){
+  		var ql = q.toLowerCase();
+  		var matches = state.clientes.filter(function(c){ return c.nombre.toLowerCase().indexOf(ql) !== -1; });
+  	return matches.slice(0,8).map(function(c){ return { label: c.nombre, isNew:false, cliente:c }; });
+		}, function(it){
+  		compInput.value = it.cliente.nombre;
+		}, { emptyMsg: function(q){ return q ? 'Sin coincidencias, se anotara "'+q+'" igual.' : "Empieza a escribir..."; } });
+
     function addComp(){
       var nombre = compInput.value.trim();
       if(!nombre){ showToast("Escribe un nombre"); compInput.focus(); return; }
