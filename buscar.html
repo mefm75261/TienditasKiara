@@ -142,7 +142,7 @@
           '<div class="boleta-mini">' +
             '<div class="fila-top"><span class="fecha">'+fechaTxt+'</span><span class="total">'+money(v.total)+'</span></div>' +
             '<table>'+filas+'</table>' +
-            '<div class="resumen"><span>Delivery: '+escapeHtml(v.zonaNombre||"-")+ (v.descuento>0 ? ' &middot; Descuento: -'+money(v.descuento) : '') +'</span><b>Total '+money(v.total)+'</b></div>' +
+            '<div class="resumen"><span>Subtotal: '+money(v.subtotal||0)+' &middot; Delivery: '+escapeHtml(v.zonaNombre||"-")+' ('+money(v.zonaPrecio||0)+')'+ (v.descuento>0 ? ' &middot; Descuento: -'+money(v.descuento) : '') +'</span><b>Total '+money(v.total)+'</b></div>' +
           '</div>';
       });
       html += '</div>';

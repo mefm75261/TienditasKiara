@@ -459,6 +459,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
       <img class="mascota-header" id="headerMascota" src="img/cinnamoroll1.png" alt="" onerror="this.style.display='none'">
     </div>
     <div class="io-actions">
+      <button class="btn btn-ghost btn-sm" id="btnDeshacer" title="No hay cambios para deshacer" disabled>↶ Deshacer</button>
       <button class="btn btn-ghost btn-sm" id="btnCopiarLinkBuscar" title="Copia el link de la pagina donde tus clientas pueden buscar sus boletas">Copiar link de busqueda</button>
       <button class="btn btn-ghost btn-sm" id="btnImagenes" title="Guardar el logo y las mascotas para poder copiar boletas sin problemas">Imagenes</button>
       <button class="btn btn-ghost btn-sm" id="btnGuardarCopia" title="Descarga un archivo con TODO lo que llevas anotado, para compartirlo o abrirlo en otro computador">Guardar copia</button>
@@ -509,8 +510,11 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
   var liveFiltroProdTexto = "";
   var liveFiltroProdFocused = false;
   var productosFiltroTexto = "";
+  var clientesFiltroTexto = "";
   var liveVistaTabla = false;
   var liveSoloFaltantes = false;
+  var undoStack = [];
+  var UNDO_MAX = 15;
   var ready = false;
 
   function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
@@ -575,6 +579,41 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
     if(part === "live") saveKey("live", state.live);
     if(part === "liveDescuentos") saveKey("liveDescuentos", state.liveDescuentos);
     if(part === "compartidos") saveKey("compartidos", state.compartidos);
+  }
+
+  function snapshotEstado(){
+  return JSON.parse(JSON.stringify({
+    productos: state.productos, clientes: state.clientes, zonas: state.zonas,
+    ventas: state.ventas, live: state.live, liveDescuentos: state.liveDescuentos,
+    compartidos: state.compartidos
+  }));
+  }
+  function pushUndo(label){
+    undoStack.push({ label: label, data: snapshotEstado() });
+    if(undoStack.length > UNDO_MAX) undoStack.shift();
+    actualizarBotonDeshacer();
+  }
+  function deshacerUltimo(){
+    if(undoStack.length === 0){ showToast("No hay cambios para deshacer"); return; }
+    var u = undoStack.pop();
+    state.productos = u.data.productos;
+    state.clientes = u.data.clientes;
+    state.zonas = u.data.zonas;
+    state.ventas = u.data.ventas;
+    state.live = u.data.live;
+    state.liveDescuentos = u.data.liveDescuentos;
+    state.compartidos = u.data.compartidos;
+    persist("productos"); persist("clientes"); persist("zonas"); persist("ventas");
+    persist("live"); persist("liveDescuentos"); persist("compartidos");
+    showToast("Se deshizo: " + u.label);
+    actualizarBotonDeshacer();
+    render();
+  }
+  function actualizarBotonDeshacer(){
+    var btn = document.getElementById("btnDeshacer");
+    if(!btn) return;
+    btn.disabled = undoStack.length === 0;
+    btn.title = undoStack.length ? "Deshacer: " + undoStack[undoStack.length-1].label : "No hay cambios para deshacer";
   }
 
   function loadAll(){
@@ -1250,8 +1289,8 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
             persist("live"); render();
           });
           tr.querySelector(".btn-danger").onclick = function(){
-            state.live = state.live.filter(function(x){ return x.id !== r.id; });
-            persist("live"); render();
+          pushUndo('quitar "'+r.producto+'" de '+r.clienteNombre);
+          state.live = state.live.filter(function(x){ return x.id !== r.id; });
           };
           tbodyTodo.appendChild(tr);
         });
@@ -1343,6 +1382,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
             render();
           });
           fila.querySelector(".btn-danger").onclick = function(){
+            pushUndo('quitar "'+r.producto+'" de '+r.clienteNombre);
             state.live = state.live.filter(function(x){ return x.id !== r.id; });
             persist("live");
             render();
@@ -1672,6 +1712,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
         }
       };
       overlay.querySelector("#btnGuardar").onclick = function(){
+        pushUndo('guardar boleta de "'+cliente.nombre+'"');
         var venta = {
           id: uid(),
           fecha: fecha.toISOString(),
@@ -1899,8 +1940,9 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
             '<div class="hist-body"></div>';
           var body = item.querySelector(".hist-body");
           var rows = v.items.map(function(it){ return '<tr><td>'+it.cantidad+'x</td><td>'+escapeHtml(it.nombre)+'</td><td style="text-align:right" class="num">'+money(it.precio*it.cantidad)+'</td></tr>'; }).join("");
-          body.innerHTML =
+                    body.innerHTML =
             '<table>'+rows+
+            '<tr><td></td><td style="color:var(--ink-soft)">Subtotal</td><td style="text-align:right" class="num">'+money(v.subtotal)+'</td></tr>' +
             (v.descuento>0 ? '<tr><td></td><td style="color:var(--brick-dark)">Descuento</td><td style="text-align:right" class="num">-'+money(v.descuento)+'</td></tr>' : '') +
             '<tr><td></td><td style="color:var(--ink-soft)">Delivery ('+escapeHtml(v.zonaNombre)+')</td><td style="text-align:right" class="num">'+money(v.zonaPrecio)+'</td></tr>' +
             '<tr><td></td><td><b>Total</b></td><td style="text-align:right" class="num"><b>'+money(v.total)+'</b></td></tr>' +
@@ -1920,6 +1962,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
           };
           body.querySelector("#del").onclick = function(e){
             e.stopPropagation();
+            pushUndo('eliminar boleta de "'+v.clienteNombre+'"');
             state.ventas = state.ventas.filter(function(x){ return x.id !== v.id; });
             persist("ventas");
             render();
@@ -1942,25 +1985,36 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
      TAB: CLIENTES
      ================================================================== */
   function renderClientes(){
-    var wrap = document.createElement("div");
-    var card = document.createElement("div");
-    card.className = "card";
-    card.appendChild(el('<h2 class="section-title">Clientas</h2>'));
+  var wrap = document.createElement("div");
+  var card = document.createElement("div");
+  card.className = "card";
+  card.appendChild(el('<h2 class="section-title">Clientas</h2>'));
 
-    var zonaOpts = function(selected){
-      return state.zonas.map(function(z){
-        return '<option value="'+z.id+'"'+(z.id===selected?' selected':'')+'>'+escapeHtml(z.nombre)+'</option>';
-      }).join("");
-    };
+  var zonaOpts = function(selected){
+    return state.zonas.map(function(z){
+      return '<option value="'+z.id+'"'+(z.id===selected?' selected':'')+'>'+escapeHtml(z.nombre)+'</option>';
+    }).join("");
+  };
 
-    if(state.clientes.length === 0){
-      card.appendChild(el('<div class="empty-state"><div class="big">Aun no tienes clientas</div>Se agregan automaticamente al vender, o crea una aqui.</div>'));
+  if(state.clientes.length === 0){
+    card.appendChild(el('<div class="empty-state"><div class="big">Aun no tienes clientas</div>Se agregan automaticamente al vender, o crea una aqui.</div>'));
+  } else {
+    var searchField = el('<div class="field" style="max-width:280px;"><input type="text" id="clienteSearch" placeholder="Buscar clienta..."></div>');
+    card.appendChild(searchField);
+
+    var filtro = clientesFiltroTexto.trim().toLowerCase();
+    var listaFiltrada = state.clientes.slice()
+      .sort(function(a,b){return a.nombre.localeCompare(b.nombre);})
+      .filter(function(c){ return !filtro || c.nombre.toLowerCase().indexOf(filtro) !== -1; });
+
+    if(listaFiltrada.length === 0){
+      card.appendChild(el('<div class="empty-state">Sin resultados.</div>'));
     } else {
       var tbl = document.createElement("table");
       tbl.className = "admin";
       tbl.innerHTML = '<thead><tr><th>Nombre</th><th>Zona de delivery</th><th></th></tr></thead>';
       var tbody = document.createElement("tbody");
-      state.clientes.slice().sort(function(a,b){return a.nombre.localeCompare(b.nombre);}).forEach(function(c){
+      listaFiltrada.forEach(function(c){
         var tr = document.createElement("tr");
         tr.innerHTML = '<td><input type="text" value="'+escapeAttr(c.nombre)+'" data-f="nombre"></td>' +
           '<td><select data-f="zonaId">'+zonaOpts(c.zonaId)+'</select></td>' +
@@ -1972,6 +2026,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
           c.zonaId = e.target.value; persist("clientes");
         });
         tr.querySelector(".btn-danger").onclick = function(){
+          pushUndo('eliminar clienta "'+c.nombre+'"');
           state.clientes = state.clientes.filter(function(x){ return x.id !== c.id; });
           persist("clientes"); render();
         };
@@ -1981,23 +2036,30 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
       card.appendChild(tbl);
     }
 
-    var addRow = document.createElement("div");
-    addRow.className = "row-inline";
-    addRow.style.marginTop = "14px";
-    addRow.innerHTML =
-      '<div><label>Nombre nueva clienta</label><input type="text" id="newCName" placeholder="Nombre"></div>' +
-      '<div><label>Zona</label><select id="newCZona">'+zonaOpts(state.zonas[0]&&state.zonas[0].id)+'</select></div>' +
-      '<div style="flex:0 0 auto;"><button class="btn btn-primary">Agregar</button></div>';
-    addRow.querySelector("button").onclick = function(){
-      var nombre = addRow.querySelector("#newCName").value.trim();
-      if(!nombre){ showToast("Escribe un nombre"); return; }
-      state.clientes.push({ id: uid(), nombre: nombre, zonaId: addRow.querySelector("#newCZona").value, ubicacion: "" });
-      persist("clientes"); render();
-    };
-    card.appendChild(addRow);
-    wrap.appendChild(card);
-    return wrap;
+    card.querySelector("#clienteSearch").value = clientesFiltroTexto;
+    card.querySelector("#clienteSearch").addEventListener("input", function(e){
+      clientesFiltroTexto = e.target.value;
+      render();
+    });
   }
+
+  var addRow = document.createElement("div");
+  addRow.className = "row-inline";
+  addRow.style.marginTop = "14px";
+  addRow.innerHTML =
+    '<div><label>Nombre nueva clienta</label><input type="text" id="newCName" placeholder="Nombre"></div>' +
+    '<div><label>Zona</label><select id="newCZona">'+zonaOpts(state.zonas[0]&&state.zonas[0].id)+'</select></div>' +
+    '<div style="flex:0 0 auto;"><button class="btn btn-primary">Agregar</button></div>';
+  addRow.querySelector("button").onclick = function(){
+    var nombre = addRow.querySelector("#newCName").value.trim();
+    if(!nombre){ showToast("Escribe un nombre"); return; }
+    state.clientes.push({ id: uid(), nombre: nombre, zonaId: addRow.querySelector("#newCZona").value, ubicacion: "" });
+    persist("clientes"); render();
+  };
+  card.appendChild(addRow);
+  wrap.appendChild(card);
+  return wrap;
+}
 
   /* ==================================================================
      TAB: PRODUCTOS
@@ -2038,6 +2100,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
             p.precio = Number(e.target.value)||0; persist("productos");
           });
           tr.querySelector(".btn-danger").onclick = function(){
+            pushUndo('eliminar producto "'+p.nombre+'"');
             state.productos = state.productos.filter(function(x){ return x.id !== p.id; });
             persist("productos"); render();
           };
@@ -2099,6 +2162,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
       });
       tr.querySelector(".btn-danger").onclick = function(){
         if(state.zonas.length <= 1){ showToast("Debe quedar al menos una zona"); return; }
+        pushUndo('eliminar zona "'+z.nombre+'"');
         state.zonas = state.zonas.filter(function(x){ return x.id !== z.id; });
         persist("zonas"); render();
       };
@@ -2120,8 +2184,35 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
       state.zonas.push({ id: uid(), nombre: nombre, precio: Number(addRow.querySelector("#newZPrecio").value)||0 });
       persist("zonas"); render();
     };
+    
     card.appendChild(addRow);
     wrap.appendChild(card);
+
+    var histCard = document.createElement("div");
+    histCard.className = "card";
+    histCard.appendChild(el('<h2 class="section-title">Historico de delivery cobrado</h2>'));
+    histCard.appendChild(el('<div class="muted" style="margin-bottom:12px; font-size:0.85rem;">Lo que realmente cobraste por delivery en cada boleta guardada (si cambiaste la zona en la boleta, aqui queda el registro real, no el del catalogo).</div>'));
+
+    var ventasOrdenadas = state.ventas.slice().sort(function(a,b){ return new Date(b.fecha) - new Date(a.fecha); });
+    if(ventasOrdenadas.length === 0){
+      histCard.appendChild(el('<div class="empty-state">Aun no hay boletas guardadas.</div>'));
+    } else {
+      var tblHist = document.createElement("table");
+      tblHist.className = "admin";
+      tblHist.innerHTML = '<thead><tr><th>Fecha</th><th>Clienta</th><th>Zona cobrada</th><th>Monto</th></tr></thead>';
+      var tbodyHist = document.createElement("tbody");
+      ventasOrdenadas.forEach(function(v){
+        var d = new Date(v.fecha);
+        var tr = document.createElement("tr");
+        tr.innerHTML = '<td>'+d.toLocaleDateString("es-CL")+'</td><td>'+escapeHtml(v.clienteNombre)+'</td><td>'+escapeHtml(v.zonaNombre||"-")+'</td><td class="num" style="text-align:right">'+money(v.zonaPrecio||0)+'</td>';
+        tbodyHist.appendChild(tr);
+      });
+      tblHist.appendChild(tbodyHist);
+      histCard.appendChild(tblHist);
+      var totalDelivery = ventasOrdenadas.reduce(function(a,v){ return a + (v.zonaPrecio||0); }, 0);
+      histCard.appendChild(el('<div class="totals-row total" style="margin-top:10px;"><span>Total cobrado en delivery</span><span class="num">'+money(totalDelivery)+'</span></div>'));
+    }
+    wrap.appendChild(histCard);
     return wrap;
   }
 
@@ -2469,6 +2560,11 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
       if(!nombre){ showToast("Escribe un nombre"); compInput.focus(); return; }
       state.compartidos.push({ id: uid(), nombre: nombre, tipo: compTipo.value });
       persist("compartidos");
+      var yaExiste = state.clientes.some(function(c){ return c.nombre.toLowerCase() === nombre.toLowerCase(); });
+      if(!yaExiste){
+        state.clientes.push({ id: uid(), nombre: nombre, zonaId: state.zonas[0] && state.zonas[0].id, ubicacion: "" });
+        persist("clientes");
+      }
       compInput.value = "";
       compInput.focus();
       render();
@@ -2507,6 +2603,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
         var tr = document.createElement("tr");
         tr.innerHTML = '<td>'+escapeHtml(p.nombre)+'</td><td>'+escapeHtml(p.tipo)+'</td><td><button class="btn-danger">Quitar</button></td>';
         tr.querySelector("button").onclick = function(){
+          pushUndo('quitar "'+p.nombre+'" de compartidos');
           state.compartidos = state.compartidos.filter(function(x){ return x.id !== p.id; });
           persist("compartidos");
           render();
@@ -2522,6 +2619,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
       var btnLimpiar = el('<button class="btn btn-ghost">Vaciar lista</button>');
       btnSorteo.onclick = function(){ openSorteo(state.compartidos, "Sorteo"); };
       btnLimpiar.onclick = function(){
+        pushUndo('vaciar lista de compartidos');
         state.compartidos = [];
         persist("compartidos");
         render();
@@ -2573,6 +2671,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
   function escapeAttr(s){ return escapeHtml(s); }
 
   /* ---------- init ---------- */
+  document.getElementById("btnDeshacer").addEventListener("click", function(){ deshacerUltimo(); });
   document.getElementById("btnExportar").addEventListener("click", function(){ exportExcel(); });
   document.getElementById("btnImportarTrigger").addEventListener("click", function(){
     document.getElementById("fileImportar").click();
