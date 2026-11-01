@@ -12,55 +12,105 @@
 <script src="firebase-config.js"></script>
 <style>
   :root{
-    --paper:#FBE9F2;
-    --card:#FFFFFF;
-    --ink:#5B2A4D;
-    --ink-soft:#9C6E93;
-    --brick:#C15B95;
-    --brick-dark:#9E3F78;
-    --mustard:#F7AFCE;
-    --line:#F3CFE3;
+    --paper:#FBE9F2; --card:#FFFFFF; --ink:#5B2A4D; --ink-soft:#9C6E93;
+    --brick:#C15B95; --brick-dark:#9E3F78; --mustard:#F7AFCE; --line:#F3CFE3;
     --shadow: 0 1px 2px rgba(91,42,77,0.08), 0 10px 26px -10px rgba(155,64,120,0.28);
     --radius:16px;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
-  body{
-    background:var(--paper); color:var(--ink); font-family:'Public Sans', sans-serif;
-    font-size:17px; -webkit-font-smoothing:antialiased;
-  }
-  .wrap{max-width:820px; margin:0 auto; padding:28px 16px 90px;}
+  body{background:var(--paper); color:var(--ink); font-family:'Public Sans', sans-serif; font-size:17px; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:860px; margin:0 auto; padding:28px 14px 90px;}
   .brand{display:flex; align-items:center; gap:12px; justify-content:center; margin-bottom:6px;}
   .brand img{width:52px; height:52px; border-radius:50%; object-fit:cover; border:2px solid var(--mustard); background:#fff;}
   .brand h1{font-family:'Fraunces',serif; font-size:1.9rem; margin:0; text-align:center;}
-  .tagline{text-align:center; color:var(--ink-soft); font-size:0.95rem; margin-bottom:28px;}
-  .card{
-    background:var(--card); border:2px dashed var(--line); border-radius:var(--radius);
-    padding:22px; box-shadow:var(--shadow); margin-bottom:18px;
+  .tagline{text-align:center; color:var(--ink-soft); font-size:0.95rem; margin-bottom:22px;}
+  .card{background:var(--card); border:2px dashed var(--line); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow); margin-bottom:18px;}
+  label{display:block; font-size:0.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin-bottom:5px; font-weight:700;}
+  input[type=text], input[type=date]{
+    width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid var(--line);
+    background:#FFFCFE; color:var(--ink); font-size:1rem; font-family:'Public Sans', sans-serif; outline:none;
   }
-  .search-field{position:relative;}
-  input[type=text]{
-    width:100%; padding:14px 16px; border-radius:12px; border:1.5px solid var(--line);
-    background:#FFFCFE; color:var(--ink); font-size:1.05rem; font-family:'Public Sans', sans-serif;
-    outline:none;
-  }
-  input[type=text]:focus{border-color:var(--brick); box-shadow:0 0 0 3px rgba(181,68,44,0.12);}
+  input:focus{border-color:var(--brick); box-shadow:0 0 0 3px rgba(193,91,149,0.14);}
+  .search-wrap{position:relative;}
+  .search-wrap svg{position:absolute; left:14px; top:50%; transform:translateY(-50%); width:18px; height:18px; color:var(--ink-soft);}
+  .search-wrap input{padding-left:42px; font-size:1.05rem; padding-top:14px; padding-bottom:14px;}
+  .filtros{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto; gap:10px; margin-top:12px; align-items:end;}
+  .filtros > div{min-width:0;}
+  input[type=date]{min-width:0; -webkit-appearance:none; appearance:none; min-height:46px;}
+  .rapidos{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;}
+  .chip{display:inline-flex; align-items:center; gap:6px; border:1.5px solid var(--line); background:#fff; color:var(--ink);
+    border-radius:999px; padding:7px 12px; font:600 .84rem 'Public Sans',sans-serif; cursor:pointer; transition:all .15s ease;}
+  .chip:hover{border-color:var(--brick);}
+  .chip.on{background:var(--brick); border-color:var(--brick); color:#fff;}
+  .chip:focus-visible,.btn:focus-visible{outline:3px solid rgba(193,91,149,.35); outline-offset:2px;}
+  .chip .row-brand{width:20px;height:20px;}
+  .btn{border:1.5px solid var(--line); background:#fff; color:var(--ink); border-radius:12px; padding:11px 14px; font:700 .88rem 'Public Sans',sans-serif; cursor:pointer; white-space:nowrap;}
+  .btn:hover{border-color:var(--brick); color:var(--brick-dark);}
+  .marcas-box{margin-top:14px; padding-top:12px; border-top:1px dashed var(--line);}
+  .resumen-filtro{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; font-size:.88rem; color:var(--ink-soft); margin:0 4px 12px;}
+  .resumen-filtro b{color:var(--ink);}
   .estado{text-align:center; color:var(--ink-soft); font-size:0.92rem; margin:18px 0;}
   .cliente-grupo{margin-bottom:22px;}
-  .cliente-grupo h2{font-family:'Fraunces',serif; font-size:1.25rem; margin:0 0 10px; color:var(--brick-dark);}
-  .boleta-mini{
-    background:#FFFDFE; border:1.5px dashed var(--line); border-radius:12px; padding:16px 18px; margin-bottom:12px;
-  }
-  .boleta-mini .fila-top{display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:8px; flex-wrap:wrap;}
+  .cliente-grupo h2{font-family:'Fraunces',serif; font-size:1.25rem; margin:0 0 10px; color:var(--brick-dark); display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .cliente-grupo h2 .cnt{font-family:'Public Sans',sans-serif; font-size:.8rem; color:var(--ink-soft); font-weight:600;}
+  .boleta-mini{background:#FFFDFE; border:1.5px dashed var(--line); border-radius:12px; padding:14px 16px; margin-bottom:12px;}
+  .boleta-mini.compartida{border-color:var(--brick); border-style:dashed;}
+  .boleta-mini .fila-top{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap;}
   .boleta-mini .fecha{font-size:0.82rem; color:var(--ink-soft);}
+  .boleta-mini .logos{display:inline-flex; align-items:center; gap:4px; margin-left:8px; vertical-align:middle;}
   .boleta-mini .total{font-family:'Space Mono',monospace; font-weight:700; font-size:1.05rem;}
   .boleta-mini table{width:100%; border-collapse:collapse; margin-top:6px;}
-  .boleta-mini td{padding:4px 2px; font-size:0.9rem; border-bottom:1px dashed var(--line);}
+  .boleta-mini td{padding:5px 2px; font-size:0.9rem; border-bottom:1px dashed var(--line); vertical-align:middle;}
   .boleta-mini td.num{text-align:right; font-family:'Space Mono',monospace; white-space:nowrap;}
-  .boleta-mini .resumen{margin-top:8px; font-size:0.88rem; color:var(--ink-soft); display:flex; justify-content:space-between;}
+  .boleta-mini tr.de-marca td{color:var(--brick-dark);}
+  .boleta-mini tr.atenuada td{opacity:.45;}
+  .det{display:inline-flex; align-items:center; gap:6px;}
+  .marca-txt{font-size:.7rem; font-weight:700; color:var(--brick); background:#FCE3F0; border-radius:999px; padding:1px 7px; white-space:nowrap;}
+  .boleta-mini .resumen{margin-top:8px; font-size:0.86rem; color:var(--ink-soft); display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;}
   .boleta-mini .resumen b{color:var(--ink);}
+  .boleta-mini .sub-marca{margin-top:6px; font-size:.82rem; color:var(--brick-dark); text-align:right;}
+  .row-brand{position:relative; flex:0 0 auto; width:18px; height:18px; border-radius:50%; overflow:hidden; display:inline-flex; align-items:center; justify-content:center;
+    background:var(--brick); color:#fff; font:800 .62rem 'Public Sans',sans-serif; border:1.5px solid var(--mustard); vertical-align:middle;}
+  .row-brand img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#fff;}
+  .row-brand.big{width:26px;height:26px;font-size:.75rem;}
   .vacio{text-align:center; padding:40px 20px; color:var(--ink-soft);}
   .vacio .big{font-family:'Fraunces',serif; font-size:1.3rem; color:var(--ink); margin-bottom:6px;}
+  @media (max-width:600px){
+    .filtros{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
+    .filtros .btn{grid-column:1 / -1;}
+    .brand h1{font-size:1.5rem;}
+  }
+
+  /* v3: ajuste fino */
+  .wrap{max-width:780px;padding:22px 12px 70px;}
+  .brand{margin-bottom:2px;}
+  .brand img{width:44px;height:44px;}
+  .tagline{margin-bottom:16px;font-size:.88rem;}
+  .card{padding:14px;}
+  .search-wrap input{padding-top:12px;padding-bottom:12px;}
+  .filtros{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;gap:8px;margin-top:10px;}
+  input[type=date]{min-height:42px;padding:9px 12px;font-size:.92rem;}
+  .rapidos-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .rapidos-row .rapidos{margin-top:0;}
+  .chip{padding:6px 11px;font-size:.8rem;min-height:32px;}
+  .link-btn{display:inline-flex;align-items:center;gap:5px;border:none;background:none;color:var(--ink-soft);font:700 .8rem 'Public Sans',sans-serif;cursor:pointer;padding:6px 8px;border-radius:8px;}
+  .link-btn svg{width:13px;height:13px;}
+  .link-btn:hover{color:var(--brick-dark);background:#FCE3F0;}
+  .link-btn:focus-visible{outline:3px solid rgba(193,91,149,.35);outline-offset:1px;}
+  .marcas-box{margin-top:12px;padding-top:10px;}
+  .cliente-grupo h2{font-size:1.12rem;margin-bottom:8px;}
+  .boleta-mini{padding:12px 14px;}
+  .boleta-mini td{font-size:.86rem;}
+  @media (max-width:600px){
+    body{font-size:16px;}
+    .wrap{padding:16px 8px 60px;}
+    .brand h1{font-size:1.4rem;}
+    .card{padding:12px;}
+    .boleta-mini{padding:10px 11px;}
+    .boleta-mini td{font-size:.82rem;}
+    .marca-txt{display:none;}
+  }
 </style>
 </head>
 <body>
@@ -69,80 +119,159 @@
     <img src="img/Logo tienditas kiara.png" alt="" onerror="this.style.display='none'">
     <h1 id="nombreTienda">Tienditas Kiara</h1>
   </div>
-  <div class="tagline">Busca tu nombre para ver tus boletas y fechas de compra</div>
+  <div class="tagline">Busca por nombre, por fecha o por marca para ver las boletas</div>
 
   <div class="card">
-    <div class="search-field">
-      <input type="text" id="buscador" placeholder="Escribe tu nombre..." autocomplete="off">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="buscador" placeholder="Escribe un nombre..." autocomplete="off" aria-label="Nombre de la clienta">
+    </div>
+    <div class="filtros">
+      <div><label for="desde">Desde</label><input type="date" id="desde"></div>
+      <div><label for="hasta">Hasta</label><input type="date" id="hasta"></div>
+    </div>
+    <div class="rapidos-row">
+      <div class="rapidos" id="rapidos" aria-label="Fechas rápidas">
+        <button type="button" class="chip" data-r="hoy">Hoy</button>
+        <button type="button" class="chip" data-r="ayer">Ayer</button>
+        <button type="button" class="chip" data-r="7">7 días</button>
+        <button type="button" class="chip" data-r="mes">Este mes</button>
+      </div>
+      <button type="button" class="link-btn" id="limpiar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Limpiar</button>
+    </div>
+    <div class="marcas-box">
+      <label>Marca</label>
+      <div class="rapidos" id="marcas" style="margin-top:4px;"></div>
     </div>
   </div>
 
   <div id="resultados"></div>
 </div>
-
 <script>
 (function(){
   "use strict";
+  /* =============== CONFIGURA AQUI =============== */
+  // Mismas rutas de logos que en index.html (img/marcas/...). Si no existen, se muestra la inicial.
+  var MARCAS_CODIGO = {
+    brand1: { imagen: "img/marcas/marca1.png" },
+    brand2: { imagen: "img/marcas/marca2.png" }
+  };
+  /* ============================================== */
 
   var ventas = [];
-  var nombreTienda = "Tienditas Kiara";
+  var marcas = [];          // [{id, nombre}]
   var listo = false;
+  var filtroMarca = "todas"; // "todas" | "propio" | "otras" | brandId
+  var $ = function(id){ return document.getElementById(id); };
 
   function escapeHtml(s){
     s = (s == null) ? "" : String(s);
-    return s.replace(/[&<>"']/g, function(c){
-      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
-    });
+    return s.replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; });
   }
-  function money(n){
-    n = Math.round(Number(n)||0);
-    return "$" + n.toLocaleString("es-CL");
+  function money(n){ n = Math.round(Number(n)||0); return "$" + n.toLocaleString("es-CL"); }
+  function norm(t){ return String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim(); }
+  function ymd(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+  function marcaById(id){ return marcas.find(function(m){ return m.id===id; }) || null; }
+  function marcaItem(it, v){
+    // cada producto guarda su marca; las boletas antiguas solo la tenian a nivel boleta
+    var id = (it && it.brandId != null) ? it.brandId : (v.brandId || "");
+    return marcaById(id) ? id : "";
+  }
+  function logoMarca(id, big){
+    var m = marcaById(id); if(!m) return "";
+    var src = (MARCAS_CODIGO[id]||{}).imagen || "";
+    return '<span class="row-brand'+(big?' big':'')+'" title="'+escapeHtml(m.nombre)+'">'+escapeHtml((m.nombre||"?").charAt(0).toUpperCase())+
+      (src ? '<img src="'+escapeHtml(src)+'" alt="" onerror="this.remove()">' : '')+'</span>';
   }
 
-  function pintarEstado(texto){
-    document.getElementById("resultados").innerHTML = '<div class="estado">'+escapeHtml(texto)+'</div>';
+  function pintarEstado(texto){ $("resultados").innerHTML = '<div class="estado">'+escapeHtml(texto)+'</div>'; }
+
+  function pintarMarcas(){
+    var h = '<button type="button" class="chip'+(filtroMarca==="todas"?' on':'')+'" data-m="todas">Todas</button>' +
+            '<button type="button" class="chip'+(filtroMarca==="propio"?' on':'')+'" data-m="propio">Solo mías</button>';
+    if(marcas.length){
+      h += '<button type="button" class="chip'+(filtroMarca==="otras"?' on':'')+'" data-m="otras">Otras marcas</button>';
+      marcas.forEach(function(m){
+        h += '<button type="button" class="chip'+(filtroMarca===m.id?' on':'')+'" data-m="'+escapeHtml(m.id)+'">'+logoMarca(m.id)+escapeHtml(m.nombre)+'</button>';
+      });
+    }
+    $("marcas").innerHTML = h;
   }
 
-  function pintarResultados(filtro){
-    var cont = document.getElementById("resultados");
-    var f = filtro.trim().toLowerCase();
-    if(!f){
-      cont.innerHTML = '<div class="vacio"><div class="big">Escribe tu nombre arriba</div>Te vamos a mostrar todas tus boletas.</div>';
+  function itemPasaMarca(id){
+    if(filtroMarca==="todas") return true;
+    if(filtroMarca==="propio") return !id;
+    if(filtroMarca==="otras") return !!id;
+    return id===filtroMarca;
+  }
+
+  function pintarResultados(){
+    var cont = $("resultados");
+    var f = norm($("buscador").value);
+    var desde = $("desde").value ? new Date($("desde").value+"T00:00:00") : null;
+    var hasta = $("hasta").value ? new Date($("hasta").value+"T23:59:59") : null;
+    var hayFiltro = f || desde || hasta || filtroMarca!=="todas";
+    document.querySelectorAll("#rapidos .chip").forEach(function(c){ c.classList.remove("on"); });
+
+    if(!hayFiltro){
+      cont.innerHTML = '<div class="vacio"><div class="big">Escribe un nombre, elige una fecha o una marca</div>Te mostramos las boletas que coincidan.</div>';
       return;
     }
     var coincidencias = ventas.filter(function(v){
-      return (v.clienteNombre || "").toLowerCase().indexOf(f) !== -1;
+      if(f && norm(v.clienteNombre).indexOf(f) === -1) return false;
+      var d = new Date(v.fecha);
+      if(desde && d < desde) return false;
+      if(hasta && d > hasta) return false;
+      if(filtroMarca!=="todas"){
+        return (v.items||[]).some(function(it){ return itemPasaMarca(marcaItem(it,v)); });
+      }
+      return true;
     });
     if(coincidencias.length === 0){
-      cont.innerHTML = '<div class="vacio"><div class="big">Sin resultados</div>No encontramos boletas para "'+escapeHtml(filtro)+'".</div>';
+      cont.innerHTML = '<div class="vacio"><div class="big">Sin resultados</div>No encontramos boletas con esos filtros.</div>';
       return;
     }
-    // agrupar por nombre exacto de clienta (puede haber varias con nombres parecidos)
-    var grupos = {};
-    var orden = [];
+    var grupos = {}, orden = [];
     coincidencias.forEach(function(v){
       var key = v.clienteNombre || "Sin nombre";
       if(!grupos[key]){ grupos[key] = []; orden.push(key); }
       grupos[key].push(v);
     });
+    orden.sort(function(a,b){ return a.localeCompare(b,"es"); });
 
-    var html = "";
+    // total de lo filtrado por marca (util para rendir cuentas a cada marca)
+    var totalMarca = 0, unidadesMarca = 0;
+    coincidencias.forEach(function(v){ (v.items||[]).forEach(function(it){
+      if(itemPasaMarca(marcaItem(it,v))){ totalMarca += it.precio*it.cantidad; unidadesMarca += Number(it.cantidad)||0; }
+    }); });
+    var etiquetaMarca = filtroMarca==="todas" ? "" : filtroMarca==="propio" ? "productos tuyos" : filtroMarca==="otras" ? "productos de otras marcas" : "productos de "+(marcaById(filtroMarca)||{}).nombre;
+
+    var html = '<div class="resumen-filtro"><span><b>'+orden.length+'</b> clienta(s) · <b>'+coincidencias.length+'</b> boleta(s)</span>' +
+      (etiquetaMarca ? '<span>'+escapeHtml(etiquetaMarca)+': <b>'+unidadesMarca+'</b> u. · <b>'+money(totalMarca)+'</b></span>' : '') + '</div>';
+
     orden.forEach(function(nombre){
-      var lista = grupos[nombre].slice().sort(function(a,b){
-        return new Date(b.fecha) - new Date(a.fecha);
-      });
-      html += '<div class="cliente-grupo"><h2>'+escapeHtml(nombre)+' ('+lista.length+' boleta'+(lista.length>1?'s':'')+')</h2>';
+      var lista = grupos[nombre].slice().sort(function(a,b){ return new Date(b.fecha) - new Date(a.fecha); });
+      var marcasCliente = [];
+      lista.forEach(function(v){ (v.items||[]).forEach(function(it){ var id=marcaItem(it,v); if(id && marcasCliente.indexOf(id)===-1) marcasCliente.push(id); }); });
+      html += '<div class="cliente-grupo"><h2>'+escapeHtml(nombre)+' <span class="cnt">('+lista.length+' boleta'+(lista.length>1?'s':'')+')</span>'+marcasCliente.map(function(id){ return logoMarca(id,true); }).join("")+'</h2>';
       lista.forEach(function(v){
         var d = new Date(v.fecha);
         var fechaTxt = d.toLocaleDateString("es-CL") + " " + d.toLocaleTimeString("es-CL",{hour:"2-digit",minute:"2-digit"});
+        var idsBoleta = [], subMarca = 0;
         var filas = (v.items||[]).map(function(it){
-          return '<tr><td>'+it.cantidad+'x '+escapeHtml(it.nombre)+'</td><td class="num">'+money(it.precio*it.cantidad)+'</td></tr>';
+          var id = marcaItem(it,v), m = marcaById(id);
+          if(id && idsBoleta.indexOf(id)===-1) idsBoleta.push(id);
+          var pasa = itemPasaMarca(id);
+          if(filtroMarca!=="todas" && pasa) subMarca += it.precio*it.cantidad;
+          var cls = (id?'de-marca':'') + (filtroMarca!=="todas" && !pasa ? ' atenuada' : '');
+          return '<tr class="'+cls+'"><td><span class="det">'+(id?logoMarca(id):'')+it.cantidad+'x '+escapeHtml(it.nombre)+(m?' <span class="marca-txt">'+escapeHtml(m.nombre)+'</span>':'')+'</span></td><td class="num">'+money(it.precio*it.cantidad)+'</td></tr>';
         }).join("");
         html +=
-          '<div class="boleta-mini">' +
-            '<div class="fila-top"><span class="fecha">'+fechaTxt+'</span><span class="total">'+money(v.total)+'</span></div>' +
+          '<div class="boleta-mini'+(idsBoleta.length?' compartida':'')+'">' +
+            '<div class="fila-top"><span class="fecha">'+fechaTxt+(idsBoleta.length?'<span class="logos">'+idsBoleta.map(function(id){ return logoMarca(id); }).join("")+'</span>':'')+'</span><span class="total">'+money(v.total)+'</span></div>' +
             '<table>'+filas+'</table>' +
-            '<div class="resumen"><span>Subtotal: '+money(v.subtotal||0)+' &middot; Delivery: '+escapeHtml(v.zonaNombre||"-")+' ('+money(v.zonaPrecio||0)+')'+ (v.descuento>0 ? ' &middot; Descuento: -'+money(v.descuento) : '') +'</span><b>Total '+money(v.total)+'</b></div>' +
+            '<div class="resumen"><span>Delivery: '+escapeHtml(v.zonaNombre||"-")+ (v.descuento>0 ? ' &middot; Descuento: -'+money(v.descuento) : '') +'</span><b>Total '+money(v.total)+'</b></div>' +
+            (filtroMarca!=="todas" && filtroMarca!=="propio" && subMarca>0 ? '<div class="sub-marca">Subtotal '+escapeHtml(etiquetaMarca)+': <b>'+money(subMarca)+'</b></div>' : '') +
           '</div>';
       });
       html += '</div>';
@@ -150,41 +279,56 @@
     cont.innerHTML = html;
   }
 
-  document.getElementById("buscador").addEventListener("input", function(e){
-    if(!listo) return;
-    pintarResultados(e.target.value);
+  /* ---------- eventos ---------- */
+  function refrescar(){ if(listo) pintarResultados(); }
+  $("buscador").addEventListener("input", refrescar);
+  $("desde").addEventListener("change", refrescar);
+  $("hasta").addEventListener("change", refrescar);
+  $("limpiar").addEventListener("click", function(){
+    $("buscador").value=""; $("desde").value=""; $("hasta").value=""; filtroMarca="todas"; pintarMarcas(); refrescar();
+  });
+  $("rapidos").addEventListener("click", function(e){
+    var b=e.target.closest(".chip"); if(!b) return;
+    var hoy=new Date(), d1=new Date(hoy), d2=new Date(hoy);
+    if(b.dataset.r==="ayer"){ d1.setDate(d1.getDate()-1); d2=new Date(d1); }
+    else if(b.dataset.r==="7"){ d1.setDate(d1.getDate()-6); }
+    else if(b.dataset.r==="mes"){ d1=new Date(hoy.getFullYear(),hoy.getMonth(),1); }
+    $("desde").value=ymd(d1); $("hasta").value=ymd(d2);
+    refrescar();
+    b.classList.add("on");
+  });
+  $("marcas").addEventListener("click", function(e){
+    var b=e.target.closest(".chip"); if(!b) return;
+    filtroMarca=b.dataset.m; pintarMarcas(); refrescar();
   });
 
+  /* ---------- datos ---------- */
+  function cargarDatos(datos){
+    ventas = datos.ventas || [];
+    marcas = ((datos.config && datos.config.brands) || []).filter(function(m){ return m && m.id; }).map(function(m){ return { id:m.id, nombre:m.nombre||m.id }; });
+    if(datos.config && datos.config.tienda){
+      $("nombreTienda").textContent = datos.config.tienda;
+      document.title = "Buscar mi boleta - " + datos.config.tienda;
+    }
+    listo = true;
+    pintarMarcas();
+    pintarResultados();
+  }
   function iniciar(){
+    pintarMarcas();
     if(typeof firebase === "undefined" || !window.FIREBASE_CONFIG || !window.FIREBASE_CONFIG.apiKey || window.FIREBASE_CONFIG.apiKey.indexOf("PEGA_AQUI") === 0){
       pintarEstado("Esta pagina todavia no esta conectada. Falta configurar firebase-config.js.");
       return;
     }
-    try{
-      if(!firebase.apps || !firebase.apps.length){ firebase.initializeApp(window.FIREBASE_CONFIG); }
-    } catch(e){}
+    try{ if(!firebase.apps || !firebase.apps.length){ firebase.initializeApp(window.FIREBASE_CONFIG); } } catch(e){}
     var db = firebase.firestore();
     var ruta = window.FIREBASE_DOC_PATH || { collection: "tienditas_kiara", doc: "datos" };
     pintarEstado("Buscando boletas...");
     db.collection(ruta.collection).doc(ruta.doc).get().then(function(snap){
-      if(!snap.exists){
-        pintarEstado("Todavia no hay boletas guardadas.");
-        return;
-      }
-      var datos = snap.data();
-      ventas = datos.ventas || [];
-      if(datos.config && datos.config.tienda){
-        nombreTienda = datos.config.tienda;
-        document.getElementById("nombreTienda").textContent = nombreTienda;
-        document.title = "Buscar mi boleta - " + nombreTienda;
-      }
-      listo = true;
-      pintarResultados(document.getElementById("buscador").value);
-    }).catch(function(err){
-      pintarEstado("No se pudo conectar. Intenta de nuevo mas tarde.");
-    });
+      if(!snap.exists){ pintarEstado("Todavia no hay boletas guardadas."); return; }
+      cargarDatos(snap.data());
+    }).catch(function(){ pintarEstado("No se pudo conectar. Intenta de nuevo mas tarde."); });
   }
-
   iniciar();
 })();
 </script>
