@@ -853,6 +853,57 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
     .rg-canvas-wrap{height:230px;}
     .rg-chip{padding:5px 9px;font-size:.74rem;}
   }
+
+  /* v11: pestaña Registro, delivery y estilo dentro de la boleta, 2 boletas pastel nuevas */
+  .vender-extras{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(300px,1fr);gap:18px;align-items:start;}
+  .vender-extras > .card{margin-bottom:0;min-width:0;}
+  @media (max-width:900px){ .vender-extras{grid-template-columns:minmax(0,1fr);} }
+  #cardResumenHoy{padding:16px 18px;}
+  .ult-list{border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  .ult-row{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1.4fr) auto;gap:10px;padding:6px 10px;font-size:.84rem;border-bottom:1px dashed var(--line);align-items:center;}
+  .ult-row:last-child{border-bottom:none;}
+  .ult-row .u-c,.ult-row .u-p{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .ult-row .u-p{color:var(--ink-soft);}
+  .registro-tab .rg-canvas-wrap{height:340px;}
+  .registro-tab .reg-scroll{max-height:520px;}
+  /* delivery editable */
+  .deliv-row > span:first-child{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .boleta .deliv-sel{width:auto;max-width:190px;padding:2px 22px 2px 7px;font-size:.78rem;border:1.5px dashed var(--mustard);border-radius:7px;background-color:#fff;color:var(--ink);min-height:0;cursor:pointer;}
+  .boleta .deliv-sel:focus{border-style:solid;border-color:var(--brick);}
+  .boleta .deliv-print{display:none;}
+  .boleta.capturando .deliv-sel{display:none !important;}
+  .boleta.capturando .deliv-print{display:inline !important;}
+  @media print{ .boleta .deliv-sel{display:none !important;} .boleta .deliv-print{display:inline !important;} }
+  /* selector de estilo dentro de la boleta */
+  .rc-switch{border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:2px;}
+  .rc-switch-t{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);font-weight:800;margin-bottom:6px;}
+  .rc-switch-g{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+  .rc-dot{display:flex;flex-direction:column;align-items:center;gap:3px;border:1.5px solid var(--line);background:var(--card);border-radius:9px;padding:4px 2px;cursor:pointer;color:var(--ink);font:600 .62rem 'Public Sans',sans-serif;}
+  .rc-dot i{display:block;width:100%;max-width:38px;height:18px;border-radius:5px;border:1px solid #ddd;}
+  .rc-dot span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .rc-dot:hover{border-color:var(--brick);}
+  .rc-dot.on{border-color:var(--brick);box-shadow:0 0 0 2px color-mix(in srgb,var(--brick) 25%,transparent);}
+  .rc-dot:focus-visible{outline:3px solid color-mix(in srgb,var(--brick) 35%,transparent);outline-offset:1px;}
+  .receipt-grid{grid-template-columns:repeat(4,1fr);}
+  @media (max-width:640px){ .rc-switch{width:100%;} .rc-switch-g{grid-template-columns:repeat(4,1fr);} }
+  /* Rubor: rosa empolvado, tinta ciruela (alto contraste) */
+  .boleta.rc-blush{--ink:#4A1D3A;--ink-soft:#7A4566;--line:#F2C6D6;--mustard:#EFA9C2;--brick:#B23A72;--brick-dark:#8E2A5A;--rc-accent:#D46A97;
+    background:linear-gradient(#FBE0EA 0,#FBE0EA 118px,#FFF7FA 118px);color:#4A1D3A;border-left:3px solid #F2C6D6;border-right:3px solid #F2C6D6;}
+  .boleta.rc-blush h3{color:#6B1F4C;}
+  .boleta.rc-blush .boleta-logo{border-color:#EFA9C2;}
+  .boleta.rc-blush table th{background:#FCE6EE;color:#6B1F4C;border-bottom:none;padding:6px 4px;}
+  .boleta.rc-blush hr{border-top:1px dashed #E9A9C1;}
+  .boleta.rc-blush .totals-row.total{background:#F7CFDD;color:#4A1D3A;border:none;border-radius:12px;padding:10px 12px;}
+  /* Aguamarina: menta-agua, tinta verde azulado oscuro */
+  .boleta.rc-aqua{--ink:#123F3A;--ink-soft:#3F6A64;--line:#BFE8E2;--mustard:#8FD5CB;--brick:#16786C;--brick-dark:#0F5A51;--rc-accent:#3BAA9C;
+    background:#F3FCFA;color:#123F3A;border:2px solid #BFE8E2;border-radius:18px;}
+  .boleta.rc-aqua::before,.boleta.rc-aqua::after{display:none;}
+  .boleta.rc-aqua h3{color:#0F5A51;}
+  .boleta.rc-aqua .sub{letter-spacing:.14em;text-transform:uppercase;font-size:.64rem;color:#3F6A64;}
+  .boleta.rc-aqua .boleta-logo{border-color:#8FD5CB;box-shadow:0 0 0 4px #DDF4F0;}
+  .boleta.rc-aqua table th{color:#0F5A51;border-bottom:2px solid #8FD5CB;}
+  .boleta.rc-aqua hr{border-top:2px dotted #BFE8E2;}
+  .boleta.rc-aqua .totals-row.total{background:#DDF4F0;color:#123F3A;border:none;border-radius:999px;padding:9px 16px;}
 </style>
 </head>
 <body>
@@ -1254,6 +1305,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
   var TABS = [
     { id:"vender", label:"Vender" },
     { id:"historial", label:"Historial" },
+    { id:"registro", label:"Registro" },
     { id:"clientes", label:"Clientas" },
     { id:"productos", label:"Productos" },
     { id:"zonas", label:"Delivery" },
@@ -1295,6 +1347,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
     else if(tab === "productos") view.appendChild(renderProductos());
     else if(tab === "zonas") view.appendChild(renderZonas());
     else if(tab === "compartidos") view.appendChild(renderCompartidos());
+    else if(tab === "registro") view.appendChild(renderRegistro());
     if(tab === "vender") ajustarEmpaquetadoSiDesborda();
     if(focoPrevioId){
       var elFoco = document.getElementById(focoPrevioId);
@@ -1870,7 +1923,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
       }
     }
     wrap.appendChild(cardList);
-    wrap.appendChild(buildRegistroYMusica());
+    wrap.appendChild(buildVenderExtras());
 
     var confirmingNuevo = false;
     btnNuevoLive.onclick = function(){
@@ -1949,8 +2002,8 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
           '<hr>' +
           '<div class="totals-row"><span>Subtotal</span><span class="num">'+money(v.subtotal)+'</span></div>' +
           (v.descuento>0 ? '<div class="totals-row descuento"><span>Descuento</span><span class="num">-'+money(v.descuento)+'</span></div>' : '') +
-          '<div class="totals-row"><span>Delivery ('+escapeHtml(v.zonaNombre)+')</span><span class="num">'+money(v.zonaPrecio)+'</span></div>' +
-          '<div class="totals-row total"><span>Total</span><span class="num">'+money(v.total)+'</span></div>' +
+          '<div class="totals-row deliv-row"><span>Delivery '+selectorZona((state.zonas.find(function(z){return z.nombre===v.zonaNombre;})||{}).id||"","histZonaSel",v.zonaNombre)+'<span class="deliv-print" id="histZonaTxt">('+escapeHtml(v.zonaNombre)+')</span></span><span class="num" id="histDelivVal">'+money(v.zonaPrecio)+'</span></div>' +
+          '<div class="totals-row total"><span>Total</span><span class="num" id="histTotalVal">'+money(v.total)+'</span></div>' +
           '<div class="thanks">Gracias por tu compra ✿</div>' +
           '<img class="boleta-mascota" src="'+getMascota2Src()+'" alt="" onerror="this.style.display=\'none\'">' +
         '</div>' +
@@ -1964,6 +2017,20 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
     overlay.querySelector("#btnCerrarHist").onclick = function(){ overlay.remove(); };
     overlay.querySelector("#btnImprimirHist").onclick = function(){ window.print(); };
     overlay.querySelector("#btnCopiarHist").onclick = function(){ copiarBoletaComoImagen(); };
+    var hz=overlay.querySelector("#histZonaSel");
+    if(hz) hz.addEventListener("change", function(){
+      var nz=findZona(hz.value); if(!nz) return;
+      v.zonaNombre=nz.nombre; v.zonaPrecio=nz.precio; v.total=(v.subtotal||0)-(v.descuento||0)+nz.precio;
+      persist("ventas");
+      var cl=v.clienteId?findCliente(v.clienteId):state.clientes.find(function(c){ return c.nombre.toLowerCase()===String(v.clienteNombre).toLowerCase(); });
+      if(cl){ cl.zonaId=nz.id; persist("clientes"); }
+      overlay.querySelector("#histZonaTxt").textContent="("+nz.nombre+")";
+      overlay.querySelector("#histDelivVal").textContent=money(nz.precio);
+      overlay.querySelector("#histTotalVal").textContent=money(v.total);
+      showToast("Delivery actualizado: "+nz.nombre);
+      render();
+    });
+    insertarSelectorEstilo(overlay);
     overlay.onclick = function(e){ if(e.target === overlay) overlay.remove(); };
   }
 
@@ -2063,7 +2130,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
             '<hr>' +
             '<div class="totals-row"><span>Subtotal</span><span class="num" id="boletaSubtotalVal">'+money(subtotal)+'</span></div>' +
             (descuentoVal>0 ? '<div class="totals-row descuento"><span>'+descuentoLabel+'</span><span class="num">-'+money(descuentoVal)+'</span></div>' : '') +
-            '<div class="totals-row"><span>Delivery ('+(zona?escapeHtml(zona.nombre):"-")+')</span><span class="num">'+money(delivery)+'</span></div>' +
+            '<div class="totals-row deliv-row"><span>Delivery '+selectorZona(zona?zona.id:"","boletaZonaSel")+'<span class="deliv-print" id="boletaZonaTxt">('+(zona?escapeHtml(zona.nombre):"-")+')</span></span><span class="num" id="boletaDelivVal">'+money(delivery)+'</span></div>' +
             '<div class="totals-row total"><span>Total</span><span class="num" id="boletaTotalVal">'+money(total)+'</span></div>' +
             '<div class="thanks">Gracias por tu compra ✿</div>' +
             '<img class="boleta-mascota" src="'+getMascota2Src()+'" alt="" onerror="this.style.display=\'none\'">' +
@@ -2098,7 +2165,19 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
       tbody.querySelectorAll("[contenteditable]").forEach(function(cell){
         cell.addEventListener("blur", recalcularBoleta);
       });
+      var zSel=overlay.querySelector("#boletaZonaSel");
+      if(zSel) zSel.addEventListener("change", function(){
+        var nz=findZona(zSel.value); if(!nz) return;
+        cliente.zonaId=nz.id; persist("clientes");
+        zona=nz; delivery=nz.precio; total=subtotal-descuentoVal+delivery;
+        overlay.querySelector("#boletaZonaTxt").textContent="("+nz.nombre+")";
+        overlay.querySelector("#boletaDelivVal").textContent=money(delivery);
+        recalcularBoleta();
+        showToast(cliente.nombre+": delivery "+nz.nombre);
+        render();
+      });
 
+      insertarSelectorEstilo(overlay);
       overlay.querySelector("#btnCerrar").onclick = function(){ overlay.remove(); };
       overlay.querySelector("#btnImprimir").onclick = function(){ window.print(); };
       overlay.querySelector("#btnCopiarImg").onclick = function(){ copiarBoletaComoImagen(); };
@@ -2166,7 +2245,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
   }
 
   function intentarCapturarBoleta(el, primerIntento){
-    html2canvas(el, { backgroundColor: "#FFFDFE", scale: 2, useCORS: true }).then(function(canvas){
+    html2canvas(el, { backgroundColor: "#FFFDFE", scale: 2, useCORS: true, onclone: marcarCaptura }).then(function(canvas){
       canvas.toBlob(function(blob){
         if(!blob){
           if(primerIntento){ reintentarCapturaSinImagenes(el); return; }
@@ -2187,7 +2266,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
     var imgs = el.querySelectorAll("img");
     var previos = [];
     imgs.forEach(function(img){ previos.push(img.style.display); img.style.display = "none"; });
-    html2canvas(el, { backgroundColor: "#FFFDFE", scale: 2 }).then(function(canvas){
+    html2canvas(el, { backgroundColor: "#FFFDFE", scale: 2, onclone: marcarCaptura }).then(function(canvas){
       imgs.forEach(function(img, i){ img.style.display = previos[i]; });
       canvas.toBlob(function(blob){
         if(!blob){ showToast("No se pudo generar la imagen"); return; }
@@ -2250,7 +2329,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
   }
 
   function intentarCapturarLote(host){
-    html2canvas(host, { backgroundColor: "#FFFDFE", scale: 2, useCORS: true }).then(function(canvas){
+    html2canvas(host, { backgroundColor: "#FFFDFE", scale: 2, useCORS: true, onclone: marcarCaptura }).then(function(canvas){
       canvas.toBlob(function(blob){
         host.innerHTML = "";
         if(!blob){ showToast("No se pudo generar la imagen"); return; }
@@ -2260,7 +2339,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
       var imgs = host.querySelectorAll("img");
       var previos = [];
       imgs.forEach(function(img){ previos.push(img.style.display); img.style.display = "none"; });
-      html2canvas(host, { backgroundColor: "#FFFDFE", scale: 2 }).then(function(canvas){
+      html2canvas(host, { backgroundColor: "#FFFDFE", scale: 2, onclone: marcarCaptura }).then(function(canvas){
         host.innerHTML = "";
         canvas.toBlob(function(blob){
           if(!blob){ showToast("No se pudo generar la imagen"); return; }
@@ -2370,7 +2449,6 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
       card.appendChild(el('<div class="totals-row total" style="margin-top:14px;"><span>Total historico</span><span class="num">'+money(totalGeneral)+'</span></div>'));
     }
     wrap.appendChild(card);
-    wrap.appendChild(buildVentasPorHora());
     return wrap;
   }
 
@@ -3003,6 +3081,42 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
   function escapeAttr(s){ return escapeHtml(s); }
 
 
+  var RECEIPT_STYLES=[
+    {id:"classic",n:"Original",pv:"#FFFDFE"},
+    {id:"rc-lavender",n:"Lavanda",pv:"linear-gradient(#EFE8FF 55%,#fff 55%)"},
+    {id:"rc-mint",n:"Menta",pv:"#FBFFFD repeating-linear-gradient(0deg,transparent 0 6px,#D5F1E3 6px 7px)"},
+    {id:"rc-peach",n:"Durazno",pv:"#FFFDFB"},
+    {id:"rc-sky",n:"Cielo",pv:"#FCFEFF radial-gradient(#BFE3F5 1.4px,transparent 1.6px) 0 0/8px 8px"},
+    {id:"rc-lemon",n:"Limón",pv:"linear-gradient(90deg,#F6E58D 0 10px,#FFFEF6 10px)"},
+    {id:"rc-blush",n:"Rubor",pv:"linear-gradient(#F7CFDD 0 40%,#FFF6F9 40%)"},
+    {id:"rc-aqua",n:"Aguamarina",pv:"#F1FBF9 linear-gradient(90deg,transparent 0 45%,#BFE8E2 45% 55%,transparent 55%)"}
+  ];
+  function claseEstilo(){ var st=state.config.receiptStyle||"classic"; return st==="classic"?"":st; }
+  function aplicarEstiloBoleta(card){
+    if(!card) return;
+    RECEIPT_STYLES.forEach(function(r){ if(r.id!=="classic") card.classList.remove(r.id); });
+    var c=claseEstilo(); if(c) card.classList.add(c);
+  }
+  function insertarSelectorEstilo(overlay){
+    var acts=overlay.querySelector(".overlay-actions"); if(!acts || acts.querySelector(".rc-switch")) return;
+    var cur=state.config.receiptStyle||"classic";
+    var box=document.createElement("div"); box.className="rc-switch";
+    box.innerHTML='<div class="rc-switch-t">Diseño de boleta</div><div class="rc-switch-g">'+RECEIPT_STYLES.map(function(r){
+      return '<button type="button" class="rc-dot'+(cur===r.id?' on':'')+'" data-rc="'+r.id+'" aria-label="Diseño '+r.n+'" aria-pressed="'+(cur===r.id)+'" title="'+r.n+'"><i style="background:'+r.pv+(r.id==="rc-peach"?';box-shadow:inset 0 0 0 2px #F6C3AF':'')+'"></i><span>'+r.n+'</span></button>'; }).join("")+'</div>';
+    acts.insertBefore(box, acts.firstChild);
+    box.querySelectorAll(".rc-dot").forEach(function(b){ b.onclick=function(){
+      state.config.receiptStyle=b.dataset.rc; persist("config");
+      aplicarEstiloBoleta(overlay.querySelector("#boletaCard"));
+      box.querySelectorAll(".rc-dot").forEach(function(x){ var on=x===b; x.classList.toggle("on",on); x.setAttribute("aria-pressed",on); });
+    }; });
+  }
+  function marcarCaptura(doc){ doc.querySelectorAll(".boleta").forEach(function(b){ b.classList.add("capturando"); }); }
+  function selectorZona(selId, idAttr, nombreFallback){
+    var has=state.zonas.some(function(z){ return z.id===selId; });
+    return '<select class="deliv-sel" id="'+idAttr+'" aria-label="Zona de delivery">'+
+      (!has ? '<option value="" selected>'+escapeHtml(nombreFallback||"Elegir…")+'</option>' : '')+
+      state.zonas.map(function(z){ return '<option value="'+z.id+'"'+(z.id===selId?' selected':'')+'>'+escapeHtml(z.nombre)+(z.precio?' · '+money(z.precio):'')+'</option>'; }).join("")+'</select>';
+  }
   function applyTheme(){ var t=state.config.theme||"default"; if(t==="default") document.body.removeAttribute("data-theme"); else document.body.setAttribute("data-theme",t); }
   function brandById(id){ return (state.config.brands||[]).find(function(b){return b.id===id;})||null; }
   function receiptClass(v){ var st=state.config.receiptStyle||"classic"; return (st==="classic"?"":st) + (marcasDe(v).length?" shared-receipt":""); }
@@ -3044,7 +3158,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
       {id:"navy-orange",n:"Azul + naranja",c:["#0B1F33","#FF9F43","#F7FAFC"]},
       {id:"deep-sky",n:"Celeste + blanco",c:["#DFF4FF","#1677A7","#123452"]},
       {id:"base-clean",n:"Base mejorado",c:["#F5F7FA","#6D5DD3","#243244"]}];
-    var receipts=[{id:"classic",n:"Original",pv:"#FFFDFE"},{id:"rc-lavender",n:"Lavanda",pv:"linear-gradient(#EFE8FF 55%,#fff 55%)"},{id:"rc-mint",n:"Menta",pv:"#FBFFFD repeating-linear-gradient(0deg,transparent 0 6px,#D5F1E3 6px 7px)"},{id:"rc-peach",n:"Durazno",pv:"#FFFDFB"},{id:"rc-sky",n:"Cielo",pv:"#FCFEFF radial-gradient(#BFE3F5 1.4px,transparent 1.6px) 0 0/8px 8px"},{id:"rc-lemon",n:"Limón",pv:"linear-gradient(90deg,#F6E58D 0 10px,#FFFEF6 10px)"}];
+    var receipts=RECEIPT_STYLES;
     var curT=state.config.theme||"default", curR=state.config.receiptStyle||"classic";
     function ico(k){ return '<span class="set-ico">'+(BI[k]||"")+'</span>'; }
     var h='<div class="settings-panel" role="dialog" aria-label="Ajustes">'+
@@ -3243,7 +3357,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
   /* ==================================================================
      v10: graficos y tendencias del registro de anotaciones
      ================================================================== */
-  var regVista = "tabla";          // "tabla" | "graficos"
+  var regVista = "graficos";          // "tabla" | "graficos"
   var regGrafico = "ritmo";        // ritmo | acumulado | productos | clientas | marcas | dias
   var regIntervalo = 15;           // minutos
   var regMetrica = "monto";        // monto | unidades
@@ -3521,6 +3635,33 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
   var _rgResize=null;
   window.addEventListener("resize", function(){ clearTimeout(_rgResize); _rgResize=setTimeout(function(){ if(regVista==="graficos" && document.getElementById("regChart")) render(); },180); });
 
+  /* ---------- v11: pestaña Registro + resumen en Vender ---------- */
+  function renderRegistro(){
+    var wrap=document.createElement("div"); wrap.className="registro-tab";
+    var g=buildRegistroYMusica();
+    var reg=g.querySelector("#cardRegistro");
+    wrap.appendChild(reg);
+    wrap.appendChild(buildVentasPorHora());
+    return wrap;
+  }
+  function buildVenderExtras(){
+    var g=buildRegistroYMusica();
+    var mus=g.querySelector("#cardMusica");
+    var grid=document.createElement("div"); grid.className="vender-extras";
+    var hoy=filtrarAnotaciones("hoy");
+    var tot=hoy.reduce(function(s,a){ return s+a.precio*a.cantidad; },0);
+    var uni=hoy.reduce(function(s,a){ return s+(Number(a.cantidad)||0); },0);
+    var cli={}; hoy.forEach(function(a){ cli[a.clienteNombre.toLowerCase()]=1; });
+    var ult=hoy.slice().sort(function(a,b){ return b.fecha.localeCompare(a.fecha); }).slice(0,3);
+    var res=document.createElement("div"); res.className="card"; res.id="cardResumenHoy";
+    res.innerHTML='<div class="reg-head"><h2 class="section-title"><span class="ttl-ico">'+BI.edit+'</span>Anotado hoy</h2><button type="button" class="btn btn-ghost btn-sm" id="btnIrRegistro">Ver registro y gráficos</button></div>'+
+      '<div class="reg-kpis"><span class="reg-kpi">Anotaciones<b>'+hoy.length+'</b></span><span class="reg-kpi">Unidades<b>'+uni+'</b></span><span class="reg-kpi">Clientas<b>'+Object.keys(cli).length+'</b></span><span class="reg-kpi">Monto<b>'+money(tot)+'</b></span></div>'+
+      (ult.length ? '<div class="ult-list">'+ult.map(function(a){ var d=new Date(a.fecha); return '<div class="ult-row"><span class="num">'+hhmm(d)+'</span><span class="u-c">'+escapeHtml(a.clienteNombre)+'</span><span class="u-p">'+escapeHtml(a.producto)+'</span><span class="num">'+money(a.precio*a.cantidad)+'</span></div>'; }).join("")+'</div>'
+        : '<div class="muted" style="font-size:.82rem">Aún no anotas nada hoy.</div>');
+    res.querySelector("#btnIrRegistro").onclick=function(){ tab="registro"; closeAllAuto(); render(); window.scrollTo(0,0); };
+    grid.appendChild(res); grid.appendChild(mus);
+    return grid;
+  }
   /* ---------- ventas por hora (segun anotaciones) ---------- */
   function buildVentasPorHora(){
     var card=document.createElement("div"); card.className="card"; card.id="cardVentasHora";
@@ -3559,7 +3700,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
       if(i%2===0 || slot>26){ c.fillStyle=cs.getPropertyValue("--ink-soft"); c.textAlign="center"; c.fillText(String(i).padStart(2,"0"),bx+bw/2,h-7); }
     });
   }
-  window.addEventListener("resize", function(){ if(document.getElementById("hourChart") && tab==="historial") render(); });
+  window.addEventListener("resize", function(){ if(document.getElementById("hourChart") && tab==="registro") render(); });
 
   /* ==================================================================
      REPRODUCTOR: lee automaticamente todas las canciones de la carpeta
@@ -3816,10 +3957,12 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
     {k:["modo buscar"], i:"search", g:"Cabecera", t:"Modo buscar", d:"Abre en otra pestaña la página pública donde tus clientas buscan sus boletas."},
     // pestañas
     {k:["vender"], i:"bag", g:"Pestañas", t:"Vender", d:"Anota las ventas del live, genera boletas, revisa el registro y escucha música."},
-    {k:["historial"], i:"clock", g:"Pestañas", t:"Historial", d:"Boletas guardadas, filtros por clienta y fecha, pico de ventas y ventas por hora."},
+    {k:["historial"], i:"clock", g:"Pestañas", t:"Historial", d:"Boletas guardadas, filtros por clienta y fecha y pico de ventas por día."},
     {k:["clientas"], i:"users", g:"Pestañas", t:"Clientas", d:"Tu lista de clientas con su zona de delivery."},
     {k:["productos"], i:"tag", g:"Pestañas", t:"Productos", d:"Catálogo de productos con su precio, para autocompletar al anotar."},
     {k:["delivery"], i:"truck", g:"Pestañas", t:"Delivery", d:"Zonas de delivery y su costo, que se suman a la boleta."},
+    {k:["registro"], i:"chart", g:"Pestañas", t:"Registro", d:"Todo lo anotado con su hora: tabla, gráficos de ritmo, acumulado, productos, clientas, marcas, comparar días y ventas por hora."},
+    {k:["ver registro y graficos"], i:"chart", g:"Vender", t:"Ver registro y gráficos", d:"Abre la pestaña Registro con la tabla completa y los gráficos."},
     {k:["compartidos"], i:"share", g:"Pestañas", t:"Compartidos", d:"Lista de personas que compran o comparten, para hacer sorteos."},
     // landing
     {k:["comenzar nuevo live"], i:"sparkles", g:"Inicio", t:"Comenzar nuevo live", d:"Empieza un live desde cero para anotar ventas."},
@@ -3914,7 +4057,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
       if(v!==n.nodeValue) n.nodeValue=v;
     });
   }
-  var SKIP_DECOR = ".rg-chip, .rg-seg, .player-ctrls, .player-tools, .player-speed, .theme-opt, .rc-opt, .icon-btn, .opt-action, .opt-info, .choice-card, .brand-pill, .player-item, .help-opt, .tour-tip, .autolist";
+  var SKIP_DECOR = ".rc-dot, .deliv-sel, .rg-chip, .rg-seg, .player-ctrls, .player-tools, .player-speed, .theme-opt, .rc-opt, .icon-btn, .opt-action, .opt-info, .choice-card, .brand-pill, .player-item, .help-opt, .tour-tip, .autolist";
   function decorarBotones(root){
     (root||document).querySelectorAll("button, a.btn-shine, a.modo-buscar").forEach(function(el){
       if(el.closest(SKIP_DECOR) && !el.closest(".tour-tip")) { if(el.closest(".player-ctrls, .player-tools, .player-speed, .icon-btn")){ var inf=infoBoton(el); ponerTip(el, inf); } return; }
@@ -3970,6 +4113,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
     {m:"anotar venta", i:"edit", d:"Escribe la clienta y el producto. Usa Tab o las flechas para elegir una coincidencia de la lista, y Enter para agregar."},
     {m:"ventas de este live", i:"layers", d:"Cada tarjeta es una clienta con lo que lleva comprado. Celeste = ya embolsado."},
     {m:"registro de anotaciones", i:"edit", d:"Todo lo que anotas queda aquí con su hora, aunque guardes las boletas o empieces otro live. Si te equivocaste, bórrala con el basurero de la fila. Con el botón Gráficos ves ritmo, acumulado, top de productos y clientas, marcas y comparación entre días."},
+    {m:"anotado hoy", i:"edit", d:"Resumen rápido de lo anotado hoy y las últimas 3 anotaciones. El detalle y los gráficos están en la pestaña Registro."},
     {m:"musica", i:"music", d:"Reproductor con las canciones de tu carpeta canciones/. Tiene velocidad x1, x1.5 y x2, y sigue sonando aunque cambies de pestaña."},
     {m:"historial de boletas", i:"clock", d:"Busca boletas por clienta y por rango de fechas. Toca una para verla, imprimirla o copiarla."},
     {m:"ventas por hora", i:"chart", d:"Muestra en qué horas anotaste más ventas durante tus lives."},
@@ -4165,7 +4309,11 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
 
   function aplicarCopiaCompleta(copia){
     if(!copia || copia.tipo !== "tienditas_kiara_copia") return false;
+    var cfgPrev = state.config || {};
     state.config = copia.config || state.config;
+    ["logoDataUri","mascota1DataUri","mascota2DataUri"].forEach(function(k){ if(!state.config[k] && cfgPrev[k]) state.config[k]=cfgPrev[k]; });
+    (state.config.brands||[]).forEach(function(b){ if(!b.imageDataUri){ var pb=(cfgPrev.brands||[]).find(function(x){ return x.id===b.id; }); if(pb && pb.imageDataUri) b.imageDataUri=pb.imageDataUri; } });
+    applyTheme(); refrescarImagenesHeader();
     state.productos = copia.productos || [];
     state.clientes = copia.clientes || [];
     state.zonas = (copia.zonas && copia.zonas.length) ? copia.zonas : defaultZonas();
@@ -4185,6 +4333,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
   function guardarCopiaCompleta(){
     var copia = construirCopiaCompleta();
     var blob = new Blob([JSON.stringify(copia)], { type: "application/json" });
+    var pesoCopia = blob.size;
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
     var fecha = fechaLocalYYYYMMDD(new Date());
@@ -4192,7 +4341,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
     a.download = (state.config.tienda || "tienda").replace(/[^a-z0-9]+/gi,"_") + "_copia_" + fecha + ".json";
     document.body.appendChild(a); a.click(); a.remove();
     URL.revokeObjectURL(url);
-    showToast("Copia guardada. Comparte ese archivo o guardalo para abrirlo en otro computador.");
+    showToast("Copia guardada ("+kb(pesoCopia)+")");
   }
 
   function cargarCopiaCompleta(file){
@@ -4267,11 +4416,35 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
     if(hm){ hm.style.display = ""; hm.src = getMascota1Src(); }
   }
 
+  // las imagenes se achican antes de guardarlas (max 320 px, WebP) para que la app y las copias pesen poco
+  function comprimirDataUri(uri, max, cb){
+    var img=new Image();
+    img.onload=function(){
+      var w=img.naturalWidth, h=img.naturalHeight, k=Math.min(1, max/Math.max(w,h));
+      var cv=document.createElement("canvas"); cv.width=Math.max(1,Math.round(w*k)); cv.height=Math.max(1,Math.round(h*k));
+      cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);
+      var out=cv.toDataURL("image/webp",0.86);
+      if(out.indexOf("data:image/webp")!==0) out=cv.toDataURL("image/png");
+      cb(out.length<uri.length ? out : uri);
+    };
+    img.onerror=function(){ cb(uri); };
+    img.src=uri;
+  }
   function leerComoDataUri(file, cb){
     var reader = new FileReader();
-    reader.onload = function(e){ cb(e.target.result); };
+    reader.onload = function(e){ comprimirDataUri(e.target.result, 320, cb); };
     reader.readAsDataURL(file);
   }
+  // achica imagenes grandes que ya estaban guardadas (de versiones anteriores)
+  function aligerarImagenesGuardadas(){
+    var c=state.config, tareas=[];
+    ["logoDataUri","mascota1DataUri","mascota2DataUri"].forEach(function(k){ if(c[k] && c[k].length>60000) tareas.push({o:c,k:k}); });
+    (c.brands||[]).forEach(function(b){ if(b.imageDataUri && b.imageDataUri.length>60000) tareas.push({o:b,k:"imageDataUri"}); });
+    if(!tareas.length) return;
+    var pend=tareas.length;
+    tareas.forEach(function(t){ comprimirDataUri(t.o[t.k], 320, function(u){ t.o[t.k]=u; if(--pend===0){ persist("config"); refrescarImagenesHeader(); } }); });
+  }
+  function kb(n){ return n<1024*1024 ? Math.max(1,Math.round(n/1024))+" KB" : (n/1048576).toFixed(1)+" MB"; }
 
   function abrirPanelImagenes(){
     var overlay = document.createElement("div");
@@ -4360,6 +4533,7 @@ nav.tabs a.modo-buscar:hover{ background:#CDEBF2; }
     document.getElementById("shopname").textContent = state.config.tienda;
     applyTheme();
     refrescarImagenesHeader();
+    aligerarImagenesGuardadas();
     appEl.style.opacity = "1";
     render();
     if(document.fonts && document.fonts.ready){
